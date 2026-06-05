@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>每日一读</title>
+<style>
+  /* ==================== 字体 ==================== */
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+
+  /* ==================== CSS 变量 ==================== */
+  :root {
+    /* 主题色 */
+    --theme: #c08b5c;
+    --theme-light: #d4a97a;
+    --theme-lighter: #f5ebe0;
+    /* 背景 */
+    --bg-page: #faf8f5;
+    --bg-card: #ffffff;
+    /* 文字 */
+    --text-primary: #2c2c2c;
+    --text-secondary: #6b6b6b;
+    --text-muted: #9a9a9a;
+    /* 功能色 */
+    --color-like: #e74c3c;
+    --color-success: #52c41a;
+    /* 其他 */
+    --border: #e8e4df;
+    --shadow: 0 2px 12px rgba(192, 139, 92, 0.08);
+    /* 字体 */
+    --font-serif: 'Noto Serif SC', 'Source Han Serif SC', 'STSong', Georgia, serif;
+    --font-sans: 'Noto Sans SC', 'Source Han Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  }
+
+  /* ==================== 暗色模式预留 ==================== */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-page: #1a1a1a;
+      --bg-card: #2c2c2c;
+      --text-primary: #e8e4df;
+      --text-secondary: #a0a0a0;
+      --text-muted: #6b6b6b;
+      --border: #3a3a3a;
+      --theme: #d4a97a;
+      --theme-light: #c08b5c;
+      --theme-lighter: #3a3024;
+      --shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  /* ==================== 减少动画 ==================== */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* ==================== 基础样式 ==================== */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--bg-page);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .container {
+    max-width: 720px;
+    width: 100%;
+    padding: 0 24px;
+  }
+
+  /* ==================== 头部 ==================== */
+  header {
+    text-align: center;
+    padding: 80px 0 40px;
+  }
+  header h1 {
+    font-family: var(--font-serif);
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 0.15em;
+    margin-bottom: 8px;
+  }
+  header .subtitle {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    font-weight: 300;
+    margin-bottom: 16px;
+  }
+  header .date-display {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* ==================== 标签栏 ==================== */
+  .style-filter {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 8px;
+    justify-content: center;
+    padding: 0 0 20px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+  }
+  .style-filter::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+
+  .style-tag {
+    flex-shrink: 0;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    background: var(--theme-lighter);
+    color: var(--text-muted);
+    border: none;
+    user-select: none;
+  }
+  .style-tag:hover {
+    background: var(--theme-light);
+    color: #fff;
+  }
+  .style-tag.active {
+    background: var(--theme);
+    color: #fff;
+  }
+
+  /* ==================== 文章卡片 ==================== */
+  @media (max-width: 768px) {
+    .article-card {
+      box-shadow: none;
+      padding: 36px 24px;
+      min-height: 320px;
+    }
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .category-badge {
+    font-size: 0.7rem;
+    color: var(--theme);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    padding: 3px 10px;
+    background: var(--theme-lighter);
+    border-radius: 10px;
+  }
+
+  .btn-like {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    transition: all 0.25s ease;
+    border-radius: 50%;
+  }
+  .btn-like:hover {
+    background: rgba(231, 76, 60, 0.1);
+    color: var(--color-like);
+  }
+  .btn-like.liked {
+    color: var(--color-like);
+  }
+  .btn-like.liked .icon {
+    animation: likeScale 0.25s ease;
+  }
+  @keyframes likeScale {
+    50% { transform: scale(1.3); }
+  }
+
+  .quote-mark {
+    font-family: var(--font-serif);
+    font-size: 3rem;
+    color: var(--theme-lighter);
+    line-height: 1;
+    margin-bottom: -8px;
+    user-select: none;
+  }
+  @media (max-width: 768px) {
+    .quote-mark { font-size: 2.5rem; }
+  }
+
+  .article-content {
+    font-family: var(--font-serif);
+    font-size: 1.15rem;
+    line-height: 2;
+    color: var(--text-primary);
+    margin-bottom: 24px;
+    text-align: justify;
+  }
+  @media (max-width: 768px) {
+    .article-content { font-size: 1rem; line-height: 1.9; }
+  }
+
+  .article-source {
+    text-align: right;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-style: italic;
+  }
+  .article-source .author {
+    color: var(--theme);
+    font-style: normal;
+    font-weight: 500;
+  }
+
+  /* ==================== 加载态 ==================== */
+  .loading-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    gap: 16px;
+  }
+  .spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--theme-lighter);
+    border-top-color: var(--theme);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  .loading-text {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+  }
+
+  /* ==================== 错误态 ==================== */
+  .error-state, .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    text-align: center;
+    padding: 20px;
+  }
+  .error-icon, .empty-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    color: var(--theme-light);
+  }
+  .error-title, .empty-title {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+  }
+  .error-desc, .empty-desc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+  }
+
+  /* ==================== 按钮 ==================== */
+  .btn-refresh {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    max-width: 280px;
+    padding: 12px 32px;
+    border-radius: 28px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1.5px solid var(--theme);
+    background: transparent;
+    color: var(--theme);
+    transition: all 0.25s ease;
+    margin: 0 auto 48px;
+  }
+  @media (max-width: 768px) {
+    .btn-refresh { max-width: 100%; }
+  }
+  .btn-refresh:hover {
+    background: var(--theme);
+    color: #fff;
+  }
+  .btn-refresh:active {
+    transform: scale(0.97);
+    transition: transform 0.1s;
+  }
+  .btn-refresh:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .btn-refresh .icon {
+    display: inline-block;
+    transition: transform 0.4s ease;
+  }
+  .btn-refresh:hover .icon {
+    transform: rotate(180deg);
+  }
+  .btn-refresh.loading .icon {
+    animation: spin 0.8s linear infinite;
+  }
+
+  /* ==================== Toast ==================== */
+  .toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100px);
+    background: var(--text-primary);
+    color: var(--bg-page);
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    z-index: 1000;
+    opacity: 0;
+    transition: all 0.3s ease-out;
+  }
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+
+  /* ==================== 动画 ==================== */
+  /* 只用 opacity 控制，避免 transform 导致偏移 */
+  .fade-out {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  .fade-in {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .article-card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    padding: 48px 40px;
+    margin-bottom: 28px;
+    position: relative;
+    /* 固定高度防止内容偏移 */
+    min-height: 360px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    opacity: 1;
+    transition: opacity 0.2s ease;
+  }
+
+  /* ==================== 响应式 ==================== */
+  @media (max-width: 768px) {
+    header { padding: 48px 0 32px; }
+    .style-filter { justify-content: flex-start; padding-left: 4px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>每 日 一 读</h1>
+    <p class="subtitle">用一段文字，开启今日</p>
+    <p class="date-display" id="dateDisplay"></p>
+  </header>
+
+  <div class="style-filter" id="styleFilter"></div>
+
+  <div class="article-card" id="articleCard">
+    <div class="loading-indicator" id="loadingState">
+      <div class="spinner"></div>
+      <span class="loading-text">正在为你寻觅好文…</span>
+    </div>
+  </div>
+
+  <button class="btn-refresh" id="btnRefresh" onclick="refreshArticle()">
+    <span class="icon">↻</span> 换一篇
+  </button>
+</div>
+
+<div class="toast" id="toast">已收藏</div>
+
+<script>
+/* ==================== 配置 ==================== */
+// 分类映射到一言 API
+const CATEGORY_MAP = {
+  '全部': '',
+  '文学': 'd',
+  '哲学': 'k',
+  '科技': '',    // 一言 API 无科技分类，使用空字符串获取全部
+  '历史': '',    // 一言 API 无历史分类
+  '励志': '',    // 一言 API 无励志分类
+  '诗词': 'i',
+};
+const categories = Object.keys(CATEGORY_MAP);
+
+// 一言 API 类型码 → 中文分类
+const HITOKOTO_TYPE_MAP = {
+  a: '动漫', b: '漫画', c: '游戏', d: '文学',
+  e: '原创', f: '网络', g: '其他', h: '影视',
+  i: '诗词', j: '网易云', k: '哲学', l: '抖机灵'
+};
+
+/* ==================== 状态 ==================== */
+let currentCategory = '全部';
+let currentArticle = null;
+let isLoading = false;
+let isLiked = false;
+
+/* ==================== 一言 API ==================== */
+async function fetchFromHitokoto(category) {
+  const code = CATEGORY_MAP[category] || '';
+  let url = `https://v1.hitokoto.cn/?encode=json${code ? '&c=' + code : ''}`;
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+
+  try {
+    const resp = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeout);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+
+    const data = await resp.json();
+    return {
+      category: HITOKOTO_TYPE_MAP[data.type] || '其他',
+      content: data.hitokoto,
+      source: data.from_who || '',
+      title: data.from || '',
+      id: data.id
+    };
+  } catch (e) {
+    clearTimeout(timeout);
+    throw e;
+  }
+}
+
+/* ==================== 渲染函数 ==================== */
+// 日期显示
+function updateDateDisplay() {
+  const now = new Date();
+  const days = ['日', '一', '二', '三', '四', '五', '六'];
+  document.getElementById('dateDisplay').textContent =
+    `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 星期${days[now.getDay()]}`;
+}
+
+// 渲染标签栏
+function renderCategories() {
+  const filter = document.getElementById('styleFilter');
+  filter.innerHTML = categories.map(cat =>
+    `<span class="style-tag${cat === currentCategory ? ' active' : ''}"
+           data-cat="${cat}">${cat}</span>`
+  ).join('');
+
+  // 绑定点击事件
+  filter.querySelectorAll('.style-tag').forEach(tag => {
+    tag.addEventListener('click', () => selectCategory(tag.dataset.cat));
+  });
+}
+
+// 显示加载态
+function showLoading() {
+  const card = document.getElementById('articleCard');
+  card.innerHTML = `
+    <div class="loading-indicator">
+      <div class="spinner"></div>
+      <span class="loading-text">正在为你寻觅好文…</span>
+    </div>
+  `;
+}
+
+// 显示错误态
+function showError() {
+  const card = document.getElementById('articleCard');
+  card.innerHTML = `
+    <div class="error-state">
+      <div class="error-icon">📖</div>
+      <div class="error-title">好像翻不到这一页</div>
+      <div class="error-desc">请检查网络后重试</div>
+    </div>
+  `;
+  card.classList.add('fade-in');
+  setTimeout(() => card.classList.remove('fade-in'), 400);
+}
+
+// 显示空状态
+function showEmpty() {
+  const card = document.getElementById('articleCard');
+  card.innerHTML = `
+    <div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <div class="empty-title">这里还是一片空白</div>
+      <div class="empty-desc">该分类暂无文章，换一个看看</div>
+    </div>
+  `;
+  card.classList.add('fade-in');
+  setTimeout(() => card.classList.remove('fade-in'), 400);
+}
+
+// 显示文章（统一用 class 控制动画）
+function showArticle(article) {
+  currentArticle = article;
+  isLiked = false;
+  const card = document.getElementById('articleCard');
+
+  // 替换内容
+  card.innerHTML = `
+    <div class="card-header">
+      <span class="category-badge">${article.category}</span>
+      <button class="btn-like" id="cardLikeBtn" onclick="toggleLike()">
+        <span class="icon">♡</span>
+      </button>
+    </div>
+    <div class="quote-mark">"</div>
+    <div class="article-content">${article.content}</div>
+    <div class="article-source">
+      —— <span class="author">${article.source}</span>${article.title ? ' 《' + article.title + '》' : ''}
+    </div>
+  `;
+
+  // 只用 class 控制动画
+  card.classList.add('fade-in');
+  setTimeout(() => card.classList.remove('fade-in'), 400);
+}
+
+// 显示 Toast
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+// 切换加载按钮状态
+function setButtonLoading(loading) {
+  const btn = document.getElementById('btnRefresh');
+  if (loading) {
+    btn.disabled = true;
+    btn.classList.add('loading');
+  } else {
+    btn.disabled = false;
+    btn.classList.remove('loading');
+  }
+}
+
+/* ==================== 核心逻辑 ==================== */
+async function refreshArticle() {
+  if (isLoading) return;
+
+  isLoading = true;
+  setButtonLoading(true);
+
+  const card = document.getElementById('articleCard');
+
+  // 淡出
+  card.classList.add('fade-out');
+
+  // 等待淡出完成
+  await new Promise(r => setTimeout(r, 200));
+
+  // 显示加载状态
+  showLoading();
+
+  try {
+    // 请求 API
+    const article = await fetchFromHitokoto(currentCategory);
+
+    // 显示结果
+    if (!article.content) {
+      showEmpty();
+    } else {
+      showArticle(article);
+    }
+  } catch (e) {
+    console.warn('获取失败:', e.message);
+    showError();
+  }
+
+  isLoading = false;
+  setButtonLoading(false);
+}
+
+function selectCategory(cat) {
+  if (cat === currentCategory) return;
+  currentCategory = cat;
+
+  // 更新标签选中态
+  document.querySelectorAll('.style-tag').forEach(tag => {
+    tag.classList.toggle('active', tag.dataset.cat === cat);
+  });
+
+  // 清除残留的 Toast
+  document.getElementById('toast').classList.remove('show');
+
+  refreshArticle();
+}
+
+function toggleLike() {
+  isLiked = !isLiked;
+  const btn = document.getElementById('cardLikeBtn');
+  const icon = btn.querySelector('.icon');
+
+  if (isLiked) {
+    btn.classList.add('liked');
+    icon.textContent = '♥';
+    showToast('已收藏');
+  } else {
+    btn.classList.remove('liked');
+    icon.textContent = '♡';
+    showToast('已取消收藏');
+  }
+}
+
+/* ==================== 初始化 ==================== */
+updateDateDisplay();
+renderCategories();
+refreshArticle();
+</script>
+</body>
+</html>
